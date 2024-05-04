@@ -43,9 +43,16 @@ class Restaurant
     #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'restaurantID', orphanRemoval: true)]
     private Collection $pictureID;
 
+    /**
+     * @var Collection<int, Booking>
+     */
+    #[ORM\OneToMany(targetEntity: Booking::class, mappedBy: 'restaurantID', orphanRemoval: true)]
+    private Collection $bookingID;
+
     public function __construct()
     {
         $this->pictureID = new ArrayCollection();
+        $this->bookingID = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -161,6 +168,36 @@ class Restaurant
             // set the owning side to null (unless already changed)
             if ($pictureID->getRestaurantID() === $this) {
                 $pictureID->setRestaurantID(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Booking>
+     */
+    public function getBookingID(): Collection
+    {
+        return $this->bookingID;
+    }
+
+    public function addBookingID(Booking $bookingID): static
+    {
+        if (!$this->bookingID->contains($bookingID)) {
+            $this->bookingID->add($bookingID);
+            $bookingID->setRestaurantID($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBookingID(Booking $bookingID): static
+    {
+        if ($this->bookingID->removeElement($bookingID)) {
+            // set the owning side to null (unless already changed)
+            if ($bookingID->getRestaurantID() === $this) {
+                $bookingID->setRestaurantID(null);
             }
         }
 
