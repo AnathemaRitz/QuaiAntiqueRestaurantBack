@@ -25,6 +25,10 @@ class Picture
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\ManyToOne(inversedBy: 'pictureID')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Restaurant $restaurantID = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -74,6 +78,18 @@ class Picture
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getRestaurantID(): ?Restaurant
+    {
+        return $this->restaurantID;
+    }
+
+    public function setRestaurantID(?Restaurant $restaurantID): static
+    {
+        $this->restaurantID = $restaurantID;
 
         return $this;
     }

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\RestaurantRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -34,6 +36,17 @@ class Restaurant
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    /**
+     * @var Collection<int, Picture>
+     */
+    #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'restaurantID', orphanRemoval: true)]
+    private Collection $pictureID;
+
+    public function __construct()
+    {
+        $this->pictureID = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -120,6 +133,36 @@ class Restaurant
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Picture>
+     */
+    public function getPictureID(): Collection
+    {
+        return $this->pictureID;
+    }
+
+    public function addPictureID(Picture $pictureID): static
+    {
+        if (!$this->pictureID->contains($pictureID)) {
+            $this->pictureID->add($pictureID);
+            $pictureID->setRestaurantID($this);
+        }
+
+        return $this;
+    }
+
+    public function removePictureID(Picture $pictureID): static
+    {
+        if ($this->pictureID->removeElement($pictureID)) {
+            // set the owning side to null (unless already changed)
+            if ($pictureID->getRestaurantID() === $this) {
+                $pictureID->setRestaurantID(null);
+            }
+        }
 
         return $this;
     }
