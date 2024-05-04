@@ -29,7 +29,7 @@ class Restaurant
     private array $pmOpening = [];
 
     #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $maxGuest = null;
+    private ?int $maxGuest = 0;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
