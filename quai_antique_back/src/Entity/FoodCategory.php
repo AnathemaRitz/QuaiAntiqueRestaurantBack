@@ -13,8 +13,40 @@ class FoodCategory
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(inversedBy: 'foodCategoryID')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Food $foodID = null;
+
+    #[ORM\ManyToOne(inversedBy: 'foodCategoryID')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Category $categoryID = null;
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getFoodID(): ?Food
+    {
+        return $this->foodID;
+    }
+
+    public function setFoodID(?Food $foodID): static
+    {
+        $this->foodID = $foodID;
+
+        return $this;
+    }
+
+    public function getCategoryID(): ?Category
+    {
+        return $this->categoryID;
+    }
+
+    public function setCategoryID(?Category $categoryID): static
+    {
+        $this->categoryID = $categoryID;
+
+        return $this;
     }
 }

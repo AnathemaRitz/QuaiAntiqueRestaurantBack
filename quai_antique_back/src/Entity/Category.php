@@ -30,9 +30,16 @@ class Category
     #[ORM\OneToMany(targetEntity: MenuCategory::class, mappedBy: 'categoryID', orphanRemoval: true)]
     private Collection $menuCategoryID;
 
+    /**
+     * @var Collection<int, FoodCategory>
+     */
+    #[ORM\OneToMany(targetEntity: FoodCategory::class, mappedBy: 'categoryID', orphanRemoval: true)]
+    private Collection $foodCategoryID;
+
     public function __construct()
     {
         $this->menuCategoryID = new ArrayCollection();
+        $this->foodCategoryID = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -100,6 +107,36 @@ class Category
             // set the owning side to null (unless already changed)
             if ($menuCategoryID->getCategoryID() === $this) {
                 $menuCategoryID->setCategoryID(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FoodCategory>
+     */
+    public function getFoodCategoryID(): Collection
+    {
+        return $this->foodCategoryID;
+    }
+
+    public function addFoodCategoryID(FoodCategory $foodCategoryID): static
+    {
+        if (!$this->foodCategoryID->contains($foodCategoryID)) {
+            $this->foodCategoryID->add($foodCategoryID);
+            $foodCategoryID->setCategoryID($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFoodCategoryID(FoodCategory $foodCategoryID): static
+    {
+        if ($this->foodCategoryID->removeElement($foodCategoryID)) {
+            // set the owning side to null (unless already changed)
+            if ($foodCategoryID->getCategoryID() === $this) {
+                $foodCategoryID->setCategoryID(null);
             }
         }
 
