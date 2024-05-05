@@ -23,7 +23,7 @@ class Food
     private ?string $description = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $price = null;
+    private ?int $price = 0;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
