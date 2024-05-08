@@ -5,15 +5,19 @@ namespace App\Controller;
 use App\Entity\User;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes\{RequestBody,Property,JsonContent};
+use OpenApi\Attributes\{MediaType,Schema};
 
-#[Route('/api', name: "app_api_")]
+#[Route('/api', name: 'app_api_')]
 class SecurityController extends AbstractController
 {
     public function __construct(
@@ -24,6 +28,27 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/registration', name: 'registration', methods: 'POST')]
+    #[OA\Post(
+          path:"/api/registration",
+          summary:"Inscription d'un nouvel utilisateur",
+          requestBody : new RequestBody(
+              required:true,
+              description:"Données de l'utilisateur à inscrire",
+              content: [new Mediatype(mediaType:"application/json",
+                schema: new Schema (type:'object',properties:[new Property(
+                property:"email", 
+                type:"string", 
+                example:"thomas@email.com"
+              ),
+              new Property(
+                property:"password", 
+                type:"string", 
+                example:"Mot de passe"
+            )]))]
+        
+        ),
+    )]
+           
     public function register(Request $request): JsonResponse
     {
         $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
@@ -54,27 +79,27 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/account/me', name: 'me', methods: 'GET')]
-    public function me() :JsonResponse
+    public function me(): JsonResponse
     {
-        $user= $this->getUser();
+        $user = $this->getUser();
 
         $responseData = $this->serializer->serialize($user, 'json');
-        
-        return new JsonResponse($responseData, Response::HTTP_OK,[], true); 
+
+        return new JsonResponse($responseData, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/account/edit', name: 'edit', methods :'PUT')]
-    public function edit(Request $request):JsonResponse
+    #[Route('/account/edit', name: 'edit', methods: 'PUT')]
+    public function edit(Request $request): JsonResponse
     {
-        $user= $this-> serializer-> deserialize(
+        $user = $this->serializer->deserialize(
             $request->getContent(),
             User::class,
             'json',
-            [AbstractNormalizer::OBJECT_TO_POPULATE=>$this->getUser()],
+            [AbstractNormalizer::OBJECT_TO_POPULATE => $this->getUser()],
         );
         $user->setUpdatedAt(new DateTimeImmutable());
 
-        if(isset($request->toArray()['password'])) {
+        if (isset($request->toArray()['password'])) {
             $user->setPassword($this->passwordHasher->hashPassword($user, $user->getPassword()));
         }
 
