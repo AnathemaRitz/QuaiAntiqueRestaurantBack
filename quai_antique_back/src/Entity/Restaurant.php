@@ -3,8 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\RestaurantRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use DateTimeImmutable;
+use Doctrine\Common\Collections\{ArrayCollection, Collection};
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,8 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Restaurant
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\GeneratedValue(strategy: "IDENTITY")]
+    #[ORM\Column(type: "integer")]
     private ?int $id = null;
 
     #[ORM\Column(length: 32)]
@@ -22,44 +22,27 @@ class Restaurant
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::ARRAY)]
-    private array $amOpening = [];
-
-    #[ORM\Column(type: Types::ARRAY)]
-    private array $pmOpening = [];
-
-    #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $maxGuest = 0;
+    #[ORM\Column]
+    private array $amOpeningTime = [];
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private array $pmOpeningTime = [];
+
+    #[ORM\Column(type: Types::SMALLINT)]
+    private int $maxGuest = 0;
+
+    #[ORM\Column]
+    private ?DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $updatedAt = null;
+    private ?DateTimeImmutable $updatedAt = null;
 
-    /**
-     * @var Collection<int, Picture>
-     */
-    #[ORM\OneToMany(targetEntity: Picture::class, mappedBy: 'restaurantID', orphanRemoval: true)]
-    private Collection $pictureID;
-
-    /**
-     * @var Collection<int, Booking>
-     */
-    #[ORM\OneToMany(targetEntity: Booking::class, mappedBy: 'restaurantID', orphanRemoval: true)]
-    private Collection $bookingID;
-
-    /**
-     * @var Collection<int, Menu>
-     */
-    #[ORM\OneToMany(targetEntity: Menu::class, mappedBy: 'restaurantID', orphanRemoval: true)]
-    private Collection $menusID;
+    #[ORM\OneToMany(mappedBy: 'restaurant', targetEntity: Picture::class, orphanRemoval: true)]
+    private Collection $pictures;
 
     public function __construct()
     {
-        $this->pictureID = new ArrayCollection();
-        $this->bookingID = new ArrayCollection();
-        $this->menusID = new ArrayCollection();
+        $this->pictures = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -91,31 +74,31 @@ class Restaurant
         return $this;
     }
 
-    public function getAmOpening(): array
+    public function getAmOpeningTime(): array
     {
-        return $this->amOpening;
+        return $this->amOpeningTime;
     }
 
-    public function setAmOpening(array $amOpening): static
+    public function setAmOpeningTime(array $amOpeningTime): static
     {
-        $this->amOpening = $amOpening;
+        $this->amOpeningTime = $amOpeningTime;
 
         return $this;
     }
 
-    public function getPmOpening(): array
+    public function getPmOpeningTime(): array
     {
-        return $this->pmOpening;
+        return $this->pmOpeningTime;
     }
 
-    public function setPmOpening(array $pmOpening): static
+    public function setPmOpeningTime(array $pmOpeningTime): static
     {
-        $this->pmOpening = $pmOpening;
+        $this->pmOpeningTime = $pmOpeningTime;
 
         return $this;
     }
 
-    public function getMaxGuest(): ?int
+    public function getMaxGuest(): int
     {
         return $this->maxGuest;
     }
@@ -127,115 +110,50 @@ class Restaurant
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable
+    public function getUpdatedAt(): ?DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    public function setUpdatedAt(?DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, Picture>
-     */
-    public function getPictureID(): Collection
+    /** @return Collection<int, Picture> */
+    public function getPictures(): Collection
     {
-        return $this->pictureID;
+        return $this->pictures;
     }
 
-    public function addPictureID(Picture $pictureID): static
+    public function addPicture(Picture $picture): static
     {
-        if (!$this->pictureID->contains($pictureID)) {
-            $this->pictureID->add($pictureID);
-            $pictureID->setRestaurantID($this);
+        if (!$this->pictures->contains($picture)) {
+            $this->pictures->add($picture);
+            $picture->setRestaurant($this);
         }
 
         return $this;
     }
 
-    public function removePictureID(Picture $pictureID): static
+    public function removePicture(Picture $picture): static
     {
-        if ($this->pictureID->removeElement($pictureID)) {
-            // set the owning side to null (unless already changed)
-            if ($pictureID->getRestaurantID() === $this) {
-                $pictureID->setRestaurantID(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Booking>
-     */
-    public function getBookingID(): Collection
-    {
-        return $this->bookingID;
-    }
-
-    public function addBookingID(Booking $bookingID): static
-    {
-        if (!$this->bookingID->contains($bookingID)) {
-            $this->bookingID->add($bookingID);
-            $bookingID->setRestaurantID($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBookingID(Booking $bookingID): static
-    {
-        if ($this->bookingID->removeElement($bookingID)) {
-            // set the owning side to null (unless already changed)
-            if ($bookingID->getRestaurantID() === $this) {
-                $bookingID->setRestaurantID(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Menu>
-     */
-    public function getMenusID(): Collection
-    {
-        return $this->menusID;
-    }
-
-    public function addMenusID(Menu $menusID): static
-    {
-        if (!$this->menusID->contains($menusID)) {
-            $this->menusID->add($menusID);
-            $menusID->setRestaurantID($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMenusID(Menu $menusID): static
-    {
-        if ($this->menusID->removeElement($menusID)) {
-            // set the owning side to null (unless already changed)
-            if ($menusID->getRestaurantID() === $this) {
-                $menusID->setRestaurantID(null);
-            }
+        if ($this->pictures->removeElement($picture) && $picture->getRestaurant() === $this) {
+            $picture->setRestaurant(null);
         }
 
         return $this;
